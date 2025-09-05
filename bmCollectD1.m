@@ -69,7 +69,10 @@ classdef bmCollectD1 < handle
             %move to home
             %initDCPos = 
            %queueOutputData(s,initDCPos);
-           startForeground(s);
+           npts = BM.sampleRate * 10;
+           zerosData = zeros(npts,1);
+           %startForeground(s);
+           data = readwrite(s,zerosData,"OutputFormat","Matrix");
            BM.lastDCVolts = 0;
           % figure(99) %this is the frequency domain figure
             %init properties
@@ -112,8 +115,9 @@ classdef bmCollectD1 < handle
                moveDC(BM,s, stepps(z))
                %make output buffer for DAC
                DCStackVolts = stepps(z) * BM.DCdispCal;
-               queueOutputData(s, DCStackVolts*ones(70000,1));
-               data = startForeground(s);   %run the stuff
+               %queueOutputData(s, DCStackVolts*ones(70000,1));
+               data = readwrite(s,DCStackVolts*ones(70000,1),"OutputFormat","Matrix");
+               %data = startForeground(s);   %run the stuff
                %convert to input referred volts
                data(:,1) = data(:,1)/BM.chargeAMGain;
                data(:,2) = data(:,2)/BM.chargeAMGain;
@@ -160,8 +164,9 @@ classdef bmCollectD1 < handle
            timebase = (0:6999)/210000; %make this a property
            endVolts = targetPosUM * BM.DCdispCal;
            rampSignal = sigmoidRamp(BM.lastDCVolts, endVolts, timebase);
-           queueOutputData(s, rampSignal');
-           data = startForeground(s);
+           %queueOutputData(s, rampSignal');
+           data = readwrite(s,rampSignal',"OutputFormat","Matrix");
+           %data = startForeground(s);
            BM.lastDCVolts = endVolts;
        end
            
@@ -182,7 +187,8 @@ classdef bmCollectD1 < handle
            BM.continueRun = 0;
            BM.freeRunTrue = 0;
            disp('stopping run, move to zero')
-           wait(s,11)
+           %wait(s,11)
+           %wait(1)
            moveDC(BM,s, 0) %move to Zero in z axis
        end
        
@@ -222,8 +228,9 @@ classdef bmCollectD1 < handle
           BM.freeRunTrue = 0;
           moveDC(BM,s, 0) %move to Zero in z axis
           DCStackVolts = 0 * BM.DCdispCal;
-          queueOutputData(s, DCStackVolts*ones(70000,1));
-          data = startForeground(s);   %run the stuff
+          %queueOutputData(s, DCStackVolts*ones(70000,1));
+          %data = startForeground(s);   %run the stuff
+          data = readwrite(s,DCStackVolts*ones(70000,1),"OutputFormat","Matrix");
           data(:,1) = data(:,1)/BM.chargeAMGain;
           data(:,2) = data(:,2)/BM.chargeAMGain;
           data(:,3) = data(:,3)* BM.ACdispCal / BM.ampAtten;
@@ -251,8 +258,9 @@ classdef bmCollectD1 < handle
           BM.freeRunTrue = 1;
           
           while(BM.freeRunTrue)
-              queueOutputData(s, DCStackVolts*ones(3500,1));
-              data = startForeground(s);   %run the stuff
+              %queueOutputData(s, DCStackVolts*ones(3500,1));
+              %data = startForeground(s);   %run the stuff
+              data = readwrite(s,DCStackVolts*ones(3500,1),"OutputFormat","Matrix");
               data(:,1) = data(:,1)/BM.chargeAMGain;
               data(:,2) = data(:,2)/BM.chargeAMGain;
               data(:,3) = data(:,3)* BM.ACdispCal / BM.ampAtten;

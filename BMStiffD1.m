@@ -11,21 +11,26 @@ h.Color = 'black';
 subjectID = input('Yo enter the subject ID. ', 's');
 
 %% ni stuff%%%%%%%%%%%%%%%%%%%
-v = daq.getVendors();
-d = daq.getDevices();
-s = daq.createSession('ni');
-addAnalogOutputChannel(s,'Dev1', 'ao0', 'Voltage');
+%v = daq.getVendors();
+%d = daq.getDevices();
+s = daq('ni');
+
+ch0i = addinput(s,"Dev1","ai0","Voltage"); % ch 0 N
+ch1i = addinput(s,"Dev1","ai1","Voltage"); % ch1 NN
+ch2i = addinput(s, "Dev1", "ai2", "Voltage"); % ampMonitor
+ch0o= addoutput(s,"Dev1","ao0","Voltage");
+%addAnalogOutputChannel(s,'Dev1', 'ao0', 'Voltage');
 % this version has three input channels....
-addAnalogInputChannel(s,'Dev1', 0, 'Voltage'); % ch 0 N
-addAnalogInputChannel(s,'Dev1', 1, 'Voltage'); %ch1 NN 
-addAnalogInputChannel(s,'Dev1', 2, 'Voltage'); % ampMon
+%addAnalogInputChannel(s,'Dev1', 0, 'Voltage'); % ch 0 N
+%addAnalogInputChannel(s,'Dev1', 1, 'Voltage'); %ch1 NN 
+%addAnalogInputChannel(s,'Dev1', 2, 'Voltage'); % ampMon
 nChannelsAD = 3;
 %sample rate should enable an integer number of cycles to be collected
 %not sure if s.Rate is scan or sample rate because of mux
 s.Rate = 21000;
 npts = 21000*10;
 zerosData = zeros(npts,1);
-queueOutputData(s, zerosData); %this is here beacuse the output queue
+%queueOutputData(s, zerosData); %this is here beacuse the output queue
 %determins the input number of samples...
 %s.NumberOfScans = npts * nChannelsAD;
 
