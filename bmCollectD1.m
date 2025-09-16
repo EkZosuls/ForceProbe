@@ -42,6 +42,7 @@ classdef bmCollectD1 < handle
        runNNCpx
        continueRun
        freeRunTrue
+       imFreeRunning
    end
    
    methods
@@ -56,6 +57,7 @@ classdef bmCollectD1 < handle
            BM.sampleRate = 21000;
            BM.chargeAMGain = 50;    %this is the charge amp AM502 gain should be matched
            BM.ampAtten = .1;    %this is the norelco output attenuator 10x
+           BM.imFreeRunning = 0; %flag for in a free run loop
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
            %stack
@@ -73,6 +75,8 @@ classdef bmCollectD1 < handle
            zerosData = zeros(npts,1);
            %startForeground(s);
            data = readwrite(s,zerosData,"OutputFormat","Matrix");
+           while(s.Running)% wait for it to return
+               end
            BM.lastDCVolts = 0;
           % figure(99) %this is the frequency domain figure
             %init properties
@@ -117,6 +121,8 @@ classdef bmCollectD1 < handle
                DCStackVolts = stepps(z) * BM.DCdispCal;
                %queueOutputData(s, DCStackVolts*ones(70000,1));
                data = readwrite(s,DCStackVolts*ones(70000,1),"OutputFormat","Matrix");
+               while(s.Running)% wait for it to return
+               end
                %data = startForeground(s);   %run the stuff
                %convert to input referred volts
                data(:,1) = data(:,1)/BM.chargeAMGain;
@@ -160,12 +166,19 @@ classdef bmCollectD1 < handle
        
        %this moves the DC stack with the sigmoid smoothing
        function moveDC(BM,s, targetPosUM)
+           %disp('into moveDC')
            BM.freeRunTrue = 0;
            timebase = (0:6999)/210000; %make this a property
            endVolts = targetPosUM * BM.DCdispCal;
            rampSignal = sigmoidRamp(BM.lastDCVolts, endVolts, timebase);
+           %while(s.Running)% wait for it to return
+             %  disp('cats')
+           % end
            %queueOutputData(s, rampSignal');
-           data = readwrite(s,rampSignal',"OutputFormat","Matrix");
+          data = readwrite(s,rampSignal',"OutputFormat","Matrix");
+          % write(s,rampSignal');
+           while(s.Running)% wait for it to return
+               end
            %data = startForeground(s);
            BM.lastDCVolts = endVolts;
        end
@@ -186,12 +199,16 @@ classdef bmCollectD1 < handle
        function stopRun(BM,s)
            BM.continueRun = 0;
            BM.freeRunTrue = 0;
-           disp('stopping run, move to zero')
-           %wait(s,11)
-           %wait(1)
-           moveDC(BM,s, 0) %move to Zero in z axis
+           disp('stopping run')
+           %disp(s.Running)
+           %moveDC(BM,s, 0) %move to Zero in z axis
+           %running a daq inside another daq doesnt work
        end
-       
+
+       function home(BM, s)
+            moveDC(BM,s, 0) %move to Zero in z axis
+            disp('Homed')
+       end
        function displayFreqDomain(BM,zFig, ampData, NData, NNData, stepp)
           %display and add points at each stepp
           figure(zFig)
@@ -231,6 +248,8 @@ classdef bmCollectD1 < handle
           %queueOutputData(s, DCStackVolts*ones(70000,1));
           %data = startForeground(s);   %run the stuff
           data = readwrite(s,DCStackVolts*ones(70000,1),"OutputFormat","Matrix");
+          while(s.Running)% wait for it to return
+               end
           data(:,1) = data(:,1)/BM.chargeAMGain;
           data(:,2) = data(:,2)/BM.chargeAMGain;
           data(:,3) = data(:,3)* BM.ACdispCal / BM.ampAtten;
@@ -257,10 +276,14 @@ classdef bmCollectD1 < handle
           DCStackVolts = 0 * BM.DCdispCal;
           BM.freeRunTrue = 1;
           
+          
           while(BM.freeRunTrue)
+              BM.imFreeRunning = 1;
               %queueOutputData(s, DCStackVolts*ones(3500,1));
               %data = startForeground(s);   %run the stuff
               data = readwrite(s,DCStackVolts*ones(3500,1),"OutputFormat","Matrix");
+              while(s.Running)
+                end
               data(:,1) = data(:,1)/BM.chargeAMGain;
               data(:,2) = data(:,2)/BM.chargeAMGain;
               data(:,3) = data(:,3)* BM.ACdispCal / BM.ampAtten;
@@ -283,6 +306,8 @@ classdef bmCollectD1 < handle
                         'Position', [450 380 100 28],'String',180*angle(zCNow)/pi); 
           
           end
+          BM.imFreeRunning = 0;
+          
            
        end
    end
