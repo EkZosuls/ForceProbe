@@ -61,7 +61,7 @@ classdef bmCollectD1 < handle
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
            %stack
-           f = figure;
+           f = figure('Position', [28 200 560 480]);
            h = uicontrol('Position',[20 20 200 40],'String','Continue',...
                           'Callback','uiresume(gcbf)');
            disp('Clear probe for stack home process');
