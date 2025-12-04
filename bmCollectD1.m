@@ -85,8 +85,10 @@ classdef bmCollectD1 < handle
            BM.runtimeProbeCal = probeCalibrationSelector(probeID)
            if(~exists(BM.runtimeProbeCal.DCStackCal_umPV))
             BM.DCdispCal = input('Enter DC stack cal in um per volt');
+            BM.ACdispCal = input('Enter AC stack cal in um per volt');
            else
                 BM.DCdispCal = BM.runtimeProbeCal.DCStackCal_umPV
+                BM.ACdispCal = BM.runtimeProbeCal.ACStackCalV_nm
            end
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC

@@ -12,6 +12,7 @@ classdef bmCollectD1 < handle
     maxFileSize    
     end
    properties (SetAccess = private)
+       runtimeProbeCal
        fileName
        fileNameBinary
        fid
@@ -80,7 +81,14 @@ classdef bmCollectD1 < handle
                  otherwise
                     warning('Unexpected probe selection.')  
             end
-           ProbeCal = probeCalibrationSelector(probeID)
+           %choose calibration date
+           BM.runtimeProbeCal = probeCalibrationSelector(probeID)
+           if(~exists(BM.runtimeProbeCal.DCStackCal_umPV))
+            BM.DCdispCal = input('Enter DC stack cal in um per volt');
+           else
+                BM.DCdispCal = BM.runtimeProbeCal.DCStackCal_umPV
+                BM.ACdispCal = BM.runtimeProbeCal.A
+           end
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
            %stack
