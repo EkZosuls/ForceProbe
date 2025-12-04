@@ -22,6 +22,8 @@ classdef bmCollectD1 < handle
        lastDCVolts    %last programmed DC probe position
        DCdispCal    %DC stack voltage to displacement cal V/um
        ACdispCal
+       DCampGain
+       ACampGain
        runStep
        runInputCpx
        runOutputCpx
@@ -50,6 +52,8 @@ classdef bmCollectD1 < handle
            BM.animalNumber =animalNumber;
            BM.runningFileSize = 0;
            BM.run = 0;
+           BM.DCampGain = 29.4;  %CHECK THIS!!
+           BM.ACampGain = 30; %%Check this!!
            BM.initDCPos = 0;
            BM.DCdispCal = .1429; %in micrometers per volt
            BM.ACdispCal = .085; %um/v
@@ -109,7 +113,9 @@ classdef bmCollectD1 < handle
            BM.run  = BM.run + 1; %increment run number
            BM.newFile();  %make new run file for raw data
            zFig = figure(BM.run+100); %new magPh figure for each run
+           zFig.Position = [28 (300-(BM.run*20)) 560 480];
            %calcualte the steps and put in vector
+           %stepps has units of micrometers
            stepps = [startLim:stepSize:upLim upLim-stepSize:-stepSize:endLim];
            %for loop that runs through the steps
            for z = 1:length(stepps)
@@ -118,7 +124,8 @@ classdef bmCollectD1 < handle
                %move to  step position
                moveDC(BM,s, stepps(z))
                %make output buffer for DAC
-               DCStackVolts = stepps(z) * BM.DCdispCal;
+               % chnaged 2025-12-3 DCStackVolts = stepps(z) * BM.DCdispCal; %This is incorrect it gives units of um.
+               DCStackVolts = stepps(z) / (BM.DCdispCal * BM.DCampGain); %this gives units of Volts
                %queueOutputData(s, DCStackVolts*ones(70000,1));
                data = readwrite(s,DCStackVolts*ones(70000,1),"OutputFormat","Matrix");
                while(s.Running)% wait for it to return
