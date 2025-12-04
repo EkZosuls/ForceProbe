@@ -52,8 +52,8 @@ classdef bmCollectD1 < handle
            BM.animalNumber =animalNumber;
            BM.runningFileSize = 0;
            BM.run = 0;
-           BM.DCampGain = 15;  %CHECK THIS!!
-           BM.ACampGain = 10; %%Check this!!
+           BM.DCampGain = 29.4;  %CHECK THIS!!
+           BM.ACampGain = 30; %%Check this!!
            BM.initDCPos = 0;
            BM.DCdispCal = .1429; %in micrometers per volt
            BM.ACdispCal = .085; %um/v
@@ -62,6 +62,25 @@ classdef bmCollectD1 < handle
            BM.chargeAMGain = 50;    %this is the charge amp AM502 gain should be matched
            BM.ampAtten = .1;    %this is the norelco output attenuator 10x
            BM.imFreeRunning = 0; %flag for in a free run loop
+            %prompt for probe serial selection
+           PROBE = menu('select probe number', '2','3','31','5');
+            switch PROBE
+                case 1
+                    %for probe 2
+                    probeID = 2;
+                case 2
+                    %for probe 3 at BU
+                    probeID = 3;
+                case 3
+                    %for probe 3 at MEE
+                    probeID = 31;
+                case 4
+                    %for probe 5
+                    probeID = 5;
+                 otherwise
+                    warning('Unexpected probe selection.')  
+            end
+           ProbeCal = probeCalibrationSelector(probeID)
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
            %stack
@@ -113,6 +132,7 @@ classdef bmCollectD1 < handle
            BM.run  = BM.run + 1; %increment run number
            BM.newFile();  %make new run file for raw data
            zFig = figure(BM.run+100); %new magPh figure for each run
+           zFig.Position = [28 (300-(BM.run*20)) 560 480];
            %calcualte the steps and put in vector
            %stepps has units of micrometers
            stepps = [startLim:stepSize:upLim upLim-stepSize:-stepSize:endLim];

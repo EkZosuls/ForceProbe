@@ -12,6 +12,7 @@ classdef bmCollectD1 < handle
     maxFileSize    
     end
    properties (SetAccess = private)
+       runtimeProbeCal
        fileName
        fileNameBinary
        fid
@@ -62,6 +63,31 @@ classdef bmCollectD1 < handle
            BM.chargeAMGain = 50;    %this is the charge amp AM502 gain should be matched
            BM.ampAtten = .1;    %this is the norelco output attenuator 10x
            BM.imFreeRunning = 0; %flag for in a free run loop
+            %prompt for probe serial selection
+           PROBE = menu('select probe number', '2','3','31','5');
+            switch PROBE
+                case 1
+                    %for probe 2
+                    probeID = 2;
+                case 2
+                    %for probe 3 at BU
+                    probeID = 3;
+                case 3
+                    %for probe 3 at MEE
+                    probeID = 31;
+                case 4
+                    %for probe 5
+                    probeID = 5;
+                 otherwise
+                    warning('Unexpected probe selection.')  
+            end
+           %choose calibration date
+           BM.runtimeProbeCal = probeCalibrationSelector(probeID)
+           if(~exists(BM.runtimeProbeCal.DCStackCal_umPV))
+            BM.DCdispCal = input('Enter DC stack cal in um per volt');
+           else
+                BM.DCdispCal = BM.runtimeProbeCal.DCStackCal_umPV
+           end
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
            %stack
