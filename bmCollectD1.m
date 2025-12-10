@@ -84,7 +84,7 @@ classdef bmCollectD1 < handle
             end
            %choose calibration date
            BM.runtimeProbeCal = probeCalibrationSelector(probeID)
-           if(~exists(BM.runtimeProbeCal.DCStackCal_umPV))
+           if(~isfield(BM.runtimeProbeCal,'DCStackCal_umPV'))
             BM.DCdispCal = input('Enter DC stack cal in um per volt');
             BM.ACdispCal = input('Enter AC stack cal in um per volt');
            else
@@ -145,7 +145,7 @@ classdef bmCollectD1 < handle
            BM.run  = BM.run + 1; %increment run number
            BM.newFile();  %make new run file for raw data
            zFig = figure(BM.run+100); %new magPh figure for each run
-           zFig.Position = [28 (300-(BM.run*20)) 560 480];
+           zFig.Position = [28 (240-(BM.run*20)) 560 480];
            %calcualte the steps and put in vector
            %stepps has units of micrometers
            stepps = [startLim:stepSize:upLim upLim-stepSize:-stepSize:endLim];
@@ -211,7 +211,8 @@ classdef bmCollectD1 < handle
            %disp('into moveDC')
            BM.freeRunTrue = 0;
            timebase = (0:6999)/210000; %make this a property
-           endVolts = targetPosUM * BM.DCdispCal;
+           %endVolts = targetPosUM * BM.DCdispCal;
+           endVolts = targetPosUM / (BM.DCdispCal * BM.DCampGain); %this gives units of Volts
            rampSignal = sigmoidRamp(BM.lastDCVolts, endVolts, timebase);
            %while(s.Running)% wait for it to return
              %  disp('cats')
