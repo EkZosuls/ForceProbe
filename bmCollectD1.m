@@ -53,7 +53,7 @@ classdef bmCollectD1 < handle
            BM.animalNumber =animalNumber;
            BM.runningFileSize = 0;
            BM.run = 0;
-           BM.DCampGain = 29.4;  %CHECK THIS!!
+           BM.DCampGain = 30.23;  %CHECK THIS!!
            BM.ACampGain = 30; %%Check this!!
            BM.initDCPos = 0;
            BM.DCdispCal = .1429; %in micrometers per volt
@@ -63,6 +63,7 @@ classdef bmCollectD1 < handle
            BM.chargeAMGain = 50;    %this is the charge amp AM502 gain should be matched
            BM.ampAtten = .1;    %this is the norelco output attenuator 10x
            BM.imFreeRunning = 0; %flag for in a free run loop
+           disp(['stim frequency should be exactly', num2str(BM.stimFrequency),' Hz']) 
             %prompt for probe serial selection
            PROBE = menu('select probe number', '2','3','31','5');
             switch PROBE
@@ -138,6 +139,9 @@ classdef bmCollectD1 < handle
            BM.Cimpedance = [];
            BM.mag = [];
            BM.phRad = [];
+           BM.runAmpCpx =[];
+           BM.runNCpx = [];
+           BM.runNNCpx = [];
            BM.run  = BM.run + 1; %increment run number
            BM.newFile();  %make new run file for raw data
            zFig = figure(BM.run+100); %new magPh figure for each run
@@ -182,8 +186,11 @@ classdef bmCollectD1 < handle
                %write the mag and faze of the stepp
                lockinM = uicontrol('Style', 'text','FontSize',16,...
                     'Position', [300 380 120 28],'String',num2str(BM.mag(end)));  
-                lockinP = uicontrol('Style', 'text','FontSize',16,...
-                    'Position', [450 380 100 28],'String',180*BM.phRad(end)/pi);  
+               lockinP = uicontrol('Style', 'text','FontSize',16,...
+                    'Position', [450 380 100 28],'String',180*BM.phRad(end)/pi);
+               %this saves the 'calibrated' data from the ADC to var called
+               %dataStep. The units are volts at the output of the charge
+               %amp and AC stack displacement.
                eval(['dataStep{',num2str(z),'} = data;']) 
                
               end   %end of if not stopped...
@@ -247,6 +254,8 @@ classdef bmCollectD1 < handle
        function displayFreqDomain(BM,zFig, ampData, NData, NNData, stepp)
           %display and add points at each stepp
           figure(zFig)
+          %note here we dont need to normalize by 2/length fft because
+          %it divides out in the zCCow calculation
           BM.runAmpCpx(end+1) = fftpoint_cpx3(ampData,  BM.sampleRate,BM.stimFrequency);
           BM.runNCpx(end+1) = fftpoint_cpx3(NData, BM.sampleRate, BM.stimFrequency);
           BM.runNNCpx(end+1) = fftpoint_cpx3(NNData, BM.sampleRate, BM.stimFrequency);
@@ -291,6 +300,8 @@ classdef bmCollectD1 < handle
           BM.nullRawNN = data(:,2);
           BM.nullRawN =  data(:,1);
           BM.nullRawAmp = data(:,3);
+          %note here we dont need to normalize by 2/length fft because
+          %it divides out in the zCCow calculation
           AmpCpx = fftpoint_cpx3(data(:,3),  BM.sampleRate,BM.stimFrequency);
           NCpx = fftpoint_cpx3(data(:,1), BM.sampleRate, BM.stimFrequency);
           NNCpx = fftpoint_cpx3(data(:,2), BM.sampleRate, BM.stimFrequency);
@@ -301,7 +312,7 @@ classdef bmCollectD1 < handle
           %digitalNulledSignal = NCpx + NNCpx;       %probe2
           stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx;
           zCCow = digitalNulledSignal ./ stackVelocity;
-          BM.currentNullCpx = zCCow ;  %outCpx/inCpx; 
+          BM.currentNullCpx = zCCow ;  %outCpx/inCpx; NEwtons per meter per second
           disp('nulled!')
        
        end
@@ -322,6 +333,8 @@ classdef bmCollectD1 < handle
               data(:,1) = data(:,1)/BM.chargeAMGain;
               data(:,2) = data(:,2)/BM.chargeAMGain;
               data(:,3) = data(:,3)* BM.ACdispCal / BM.ampAtten;
+              %note here we dont need to normalize by 2/length fft because
+              %it divides out in the zCCow calculation
               AmpCpx = fftpoint_cpx3(data(:,3),  BM.sampleRate,BM.stimFrequency);
               NCpx = fftpoint_cpx3(data(:,1), BM.sampleRate, BM.stimFrequency);
               NNCpx = fftpoint_cpx3(data(:,2), BM.sampleRate, BM.stimFrequency);
