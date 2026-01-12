@@ -313,7 +313,7 @@ classdef bmCollectD1 < handle
           %digitalNulledSignal = NCpx + NNCpx;       %probe2
           stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx;
           zCCow = digitalNulledSignal ./ stackVelocity;
-          BM.currentNullCpx = zCCow ;  %outCpx/inCpx; NEwtons per meter per second
+          BM.currentNullCpx = zCCow ;  %outCpx/inCpx; NEwtons per micrometer per second
           disp('nulled!')
        
        end
