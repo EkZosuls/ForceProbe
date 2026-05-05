@@ -263,9 +263,13 @@ classdef bmCollectD1 < handle
           BM.runStep(end+1) = stepp;
           %compute impedance = force( the measured signal) over velocity(drive
           %signal)
-          digitalNulledSignal = BM.runNCpx(end) - BM.runNNCpx(end);  %probe 3 5
+          if BM.runtimeProbeCal.PROBEID ==2
+            digitalNulledSignal = BM.runNCpx(end) + BM.runNNCpx(end);     %probe2
+          else
+            digitalNulledSignal = BM.runNCpx(end) - BM.runNNCpx(end);  %probe 3 5
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-          %digitalNulledSignal = BM.runNCpx(end) + BM.runNNCpx(end);     %probe2
+          end
+          %
           stackVelocity = -2i*pi* BM.stimFrequency .* BM.runAmpCpx(end);
           zCCow = digitalNulledSignal ./ stackVelocity
           %zCCow = BM.runOutputCpx(end) / BM.runInputCpx(end);
@@ -308,9 +312,13 @@ classdef bmCollectD1 < handle
           NNCpx = fftpoint_cpx3(data(:,2), BM.sampleRate, BM.stimFrequency);
           %outCpx = fftpoint_cpx3(data(:,1),  BM.sampleRate,BM.stimFrequency); 
           %inCpx = fftpoint_cpx3(data(:,2),  BM.sampleRate,BM.stimFrequency); 
-          digitalNulledSignal = NCpx - NNCpx;   %probe3 5
+          if BM.runtimeProbeCal.PROBEID ==2
+            digitalNulledSignal = NCpx + NNCpx;       %probe2
+          else
+            digitalNulledSignal = NCpx - NNCpx;   %probe3 5
+          end
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-          %digitalNulledSignal = NCpx + NNCpx;       %probe2
+          %
           stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx;
           zCCow = digitalNulledSignal ./ stackVelocity;
           BM.currentNullCpx = zCCow ;  %outCpx/inCpx; NEwtons per micrometer per second
@@ -341,9 +349,13 @@ classdef bmCollectD1 < handle
               NNCpx = fftpoint_cpx3(data(:,2), BM.sampleRate, BM.stimFrequency);
               %outCpx = fftpoint_cpx3(data(:,1),  BM.sampleRate,BM.stimFrequency); 
               %inCpx = fftpoint_cpx3(data(:,2),  BM.sampleRate,BM.stimFrequency); 
-              digitalNulledSignal = NCpx - NNCpx;   %probe3 5
+              if BM.runtimeProbeCal.PROBEID == 2
+                digitalNulledSignal = NCpx + NNCpx;   %probe2
+              else
+                  digitalNulledSignal = NCpx - NNCpx;   %probe3 5
+              end
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              %digitalNulledSignal = NCpx + NNCpx;   %probe2
+              %
               stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx;
               zCCow = digitalNulledSignal ./ stackVelocity;
               zCNow = zCCow - BM.currentNullCpx;
