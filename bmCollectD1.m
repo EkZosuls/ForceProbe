@@ -89,7 +89,7 @@ classdef bmCollectD1 < handle
             BM.ACdispCal = input('Enter AC stack cal in um per volt');
            else
                 BM.DCdispCal = BM.runtimeProbeCal.DCStackCal_umPV
-                BM.ACdispCal = BM.runtimeProbeCal.ACStackCalV_nm
+                BM.ACdispCal = BM.runtimeProbeCal.ACStackCal_umPV
            end
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
@@ -356,7 +356,7 @@ classdef bmCollectD1 < handle
               end
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
               %
-              stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx;
+              stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx; % units of um/s
               zCCow = digitalNulledSignal ./ stackVelocity;
               zCNow = zCCow - BM.currentNullCpx;
               figure(66)
