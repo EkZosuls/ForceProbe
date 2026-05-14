@@ -90,6 +90,7 @@ classdef bmCollectD1 < handle
            else
                 BM.DCdispCal = BM.runtimeProbeCal.DCStackCal_umPV
                 BM.ACdispCal = BM.runtimeProbeCal.ACStackCal_umPV
+                BM.chargeAMGain = BM.runtimeProbeCal.AM502Gain
            end
            %open warnig box to alert user to clear the probe path for a
            %home operation that move the probe to 0um relative to the DC
