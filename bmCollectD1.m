@@ -276,6 +276,11 @@ classdef bmCollectD1 < handle
           %zCCow = BM.runOutputCpx(end) / BM.runInputCpx(end);
           zCNow = zCCow - BM.currentNullCpx;
           BM.Cimpedance(end+1) = zCNow;
+          %phase shift the impedance for the display only, not the raw data
+          phaseCorrectRad = BM.runtimeProbeCal.phaseCorrectDeg*pi/180;
+          R = real(zCNow)*cos(phaseCorrectRad) - imag(zCNow)*sin(phaseCorrectRad);
+          I = real(zCNow)*sin(phaseCorrectRad) + imag(zCNow)*cos(phaseCorrectRad);
+          zCNow = R + 1i*I;
           BM.mag(end+1) = abs(zCNow);
           BM.phRad(end+1) = angle(zCNow);
           subplot(2,1,1)
@@ -360,6 +365,11 @@ classdef bmCollectD1 < handle
               stackVelocity = -2i*pi* BM.stimFrequency * AmpCpx; % units of um/s
               zCCow = digitalNulledSignal ./ stackVelocity;
               zCNow = zCCow - BM.currentNullCpx;
+              %phase shift the impedance for the display only, not the raw data
+              phaseCorrectRad = BM.runtimeProbeCal.phaseCorrectDeg*pi/180;
+              R = real(zCNow)*cos(phaseCorrectRad) - imag(zCNow)*sin(phaseCorrectRad);
+              I = real(zCNow)*sin(phaseCorrectRad) + imag(zCNow)*cos(phaseCorrectRad);
+              zCNow = R + 1i*I;
               figure(66)
               lockinM = uicontrol('Style', 'text','FontSize',16,...
                         'Position', [300 380 120 28],'String',num2str(abs(zCNow)));  
